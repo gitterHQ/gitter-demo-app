@@ -1,0 +1,22 @@
+extends layout
+
+block content
+
+  include nav
+
+  .container-fluid
+    .row
+      .col-md-12
+        .home
+          if user
+            img.img-circle(src="#{user.avatarUrlMedium}")
+            h1 Hello #{user.username}!
+            p 
+              |You authenticated using app 
+              strong #{clientId}
+            p This is your token:
+            p.mono #{token}
+          else
+            h1 Gitter Demo App
+            p
+              a(href="/login").btn.btn-primary Sign in

@@ -1,0 +1,6 @@
+*.swp
+*.swo
+node_modules
+*.pyc
+npm-debug.log
+output
