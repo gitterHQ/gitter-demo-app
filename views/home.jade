@@ -6,17 +6,18 @@ block content
 
   .container-fluid
     .row
-      .col-md-12
+      .col-md-6.col-md-offset-3
         .home
-          if user
-            img.img-circle(src="#{user.avatarUrlMedium}")
-            h1 Hello #{user.username}!
-            p 
-              |You authenticated using app 
-              strong #{clientId}
-            p This is your token:
-            p.mono #{token}
-          else
-            h1 Gitter Demo App
-            p
-              a(href="/login").btn.btn-primary Sign in
+          img.img-circle(src="#{user.avatarUrlMedium}")
+
+          h1 Hello #{user.username}!
+          p 
+            |You authenticated using app 
+            strong #{clientId}
+            |, this is your token:
+          p.mono #{token}
+
+          h3 You're currently in the following rooms:
+          - each room in rooms
+            a.btn(href="https://gitter.im#{room.url}")
+              span= room.name

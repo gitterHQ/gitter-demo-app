@@ -13,6 +13,40 @@ var port          = process.env.PORT || 7000;
 var clientId      = process.env.GITTER_KEY;
 var clientSecret  = process.env.GITTER_SECRET;
 
+// Gitter API client helper
+var gitter = {
+  fetch: function(path, token, cb) {
+    var options = {
+     url: gitterHost + path,
+     headers: {
+       'Authorization': 'Bearer ' + token
+     }
+    };
+
+    request(options, function (err, res, body) {
+      if (err) return cb(err);
+
+      if (res.statusCode === 200) {
+        cb(null, JSON.parse(body));
+      } else {
+        cb('err' + res.statusCode);
+      }
+    });
+  },
+
+  fetchCurrentUser: function(token, cb) {
+    this.fetch('/api/v1/user/', token, function(err, user) {
+      cb(err, user[0]);
+    });
+  },
+
+  fetchRooms: function(user, token, cb) {
+    this.fetch('/api/v1/user/' + user.id + '/rooms', token, function(err, rooms) {
+      cb(err, rooms);
+    });
+  }
+};
+
 var app = express();
 
 // Middlewares
@@ -40,25 +74,9 @@ passport.use(new OAuth2Strategy({
     passReqToCallback:  true
   },
   function(req, accessToken, refreshToken, profile, done) {
-
     req.session.token = accessToken;
-
-    // Request User details using the obtained token
-
-    var options = {
-     url: gitterHost + '/api/v1/user',
-     headers: {
-       'Authorization': 'Bearer ' + accessToken
-     }
-    };
-
-    request(options, function (error, _res, body) {
-      if (_res.statusCode == 200) {
-        var user = JSON.parse(body)[0];
-        return done(null, user);
-      } else {
-        return done(error);
-      }
+    gitter.fetchCurrentUser(accessToken, function(err, user) {
+      return (err ? done(err) : done(null, user));
     });
   }
 ));
@@ -77,7 +95,7 @@ app.get('/login',
 
 app.get('/login/callback', 
   passport.authenticate('oauth2', {
-    successRedirect: '/',
+    successRedirect: '/home',
     failureRedirect: '/'
   })
 );
@@ -88,7 +106,25 @@ app.get('/logout', function(req,res) {
 });
 
 app.get('/', function(req, res) {
-  res.render('home', {user: req.user, token: req.session.token, clientId: clientId});
+  res.render('landing');
+});
+
+
+app.get('/home', function(req, res) {
+  if (!req.user) return res.redirect('/');
+
+  // Fetch user rooms using the Gitter API
+  gitter.fetchRooms(req.user, req.session.token, function(err, rooms) {
+    if (err) return res.send(500);
+
+    res.render('home', {
+      user: req.user, 
+      token: req.session.token, 
+      clientId: clientId,
+      rooms: rooms
+    });
+  });
+
 });
 
 app.listen(port);
