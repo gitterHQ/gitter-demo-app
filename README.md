@@ -2,9 +2,9 @@
 
 ## HOWTO
 
-Create a new app at [https://developer.gitter.im](https://developer.gitter.im)
-
-Launch the demo app with:
+1. Create a new app at [https://developer.gitter.im](https://developer.gitter.im)
+2. Run npm install
+3. Launch the demo app with:
 
 ```
 $ GITTER_KEY=<your-app-key> GITTER_SECRET=<your-app-secret> node app.js
