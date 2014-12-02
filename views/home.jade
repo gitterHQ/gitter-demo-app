@@ -16,6 +16,11 @@ block content
             strong #{clientId}
             |, this is your token:
           p.mono #{token}
+          p 
+            |Search 
+            a(href='https://developer.gitter.im/docs/welcome')
+              |Developer documentation
+            |. 
 
           h3 You're currently in the following rooms:
           - each room in rooms
