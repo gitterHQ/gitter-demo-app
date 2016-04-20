@@ -5,6 +5,7 @@ var express         = require('express');
 var passport        = require('passport');
 var OAuth2Strategy  = require('passport-oauth2');
 var request         = require('request');
+var querystring     = require('querystring');
 
 var gitterHost    = process.env.HOST || 'https://gitter.im';
 var port          = process.env.PORT || 7000;
@@ -125,6 +126,20 @@ app.get('/home', function(req, res) {
     });
   });
 
+});
+
+app.get('/rooms/:roomId', function(req, res){
+  gitter.fetch(`/api/v1/rooms/${req.params.roomId}/chatMessages?${querystring.stringify(req.query)}`, req.session.token, function(err, r) {
+    res.send(`
+      <table>
+       ${r.map(m=>`<tr>
+          <td style="width:130px;">${m.sent.substring(0,16).replace('T',' ')}</td>
+          <td>${m.fromUser.username}</td>
+          <td>${m.html}</td>
+        </tr>`).join('')}
+      </table>
+    `);
+  });
 });
 
 app.listen(port);
