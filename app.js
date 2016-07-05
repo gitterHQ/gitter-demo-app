@@ -10,8 +10,8 @@ var gitterHost    = process.env.HOST || 'https://gitter.im';
 var port          = process.env.PORT || 7000;
 
 // Client OAuth configuration
-var clientId      = process.env.GITTER_KEY;
-var clientSecret  = process.env.GITTER_SECRET;
+var clientId      = process.env.GITTER_KEY ? process.env.GITTER_KEY.trim() : undefined;
+var clientSecret  = process.env.GITTER_SECRET ? process.env.GITTER_SECRET.trim() : undefined;
 
 // Gitter API client helper
 var gitter = {
@@ -89,11 +89,11 @@ passport.deserializeUser(function (user, done) {
   done(null, JSON.parse(user));
 });
 
-app.get('/login', 
+app.get('/login',
   passport.authenticate('oauth2')
 );
 
-app.get('/login/callback', 
+app.get('/login/callback',
   passport.authenticate('oauth2', {
     successRedirect: '/home',
     failureRedirect: '/'
@@ -118,8 +118,8 @@ app.get('/home', function(req, res) {
     if (err) return res.send(500);
 
     res.render('home', {
-      user: req.user, 
-      token: req.session.token, 
+      user: req.user,
+      token: req.session.token,
       clientId: clientId,
       rooms: rooms
     });
